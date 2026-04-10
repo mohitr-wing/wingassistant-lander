@@ -12,26 +12,32 @@
 
 // ─── FORWARD URL PARAMS + FB COOKIES TO QUALIFY.HTML LINKS ───
 (function () {
-  var currentParams = new URLSearchParams(window.location.search);
-
-  // Read _fbp and _fbc from cookies (set by Facebook pixel)
-  var cookies = document.cookie.split('; ');
-  var fbCookies = { fbp: '', fbc: '' };
-  cookies.forEach(function (c) {
-    if (c.startsWith('_fbp=')) fbCookies.fbp = c.split('=')[1];
-    if (c.startsWith('_fbc=')) fbCookies.fbc = c.split('=')[1];
-  });
+  function getCookie(name) {
+    var match = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return match ? decodeURIComponent(match[1]) : '';
+  }
 
   document.querySelectorAll('a[href*="qualify.html"]').forEach(function (link) {
-    var url = new URL(link.href, window.location.origin);
-    currentParams.forEach(function (value, key) {
-      if (!url.searchParams.has(key)) {
-        url.searchParams.set(key, value);
-      }
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var currentParams = new URLSearchParams(window.location.search);
+      var url = new URL(link.href, window.location.origin);
+
+      // Forward all URL params
+      currentParams.forEach(function (value, key) {
+        if (!url.searchParams.has(key)) {
+          url.searchParams.set(key, value);
+        }
+      });
+
+      // Read _fbp and _fbc from cookies at click time (FB pixel sets these async)
+      var fbp = getCookie('_fbp');
+      var fbc = getCookie('_fbc');
+      if (fbp && !url.searchParams.has('fbp')) url.searchParams.set('fbp', fbp);
+      if (fbc && !url.searchParams.has('fbc')) url.searchParams.set('fbc', fbc);
+
+      window.location.href = url.pathname + '?' + url.searchParams.toString();
     });
-    if (fbCookies.fbp && !url.searchParams.has('fbp')) url.searchParams.set('fbp', fbCookies.fbp);
-    if (fbCookies.fbc && !url.searchParams.has('fbc')) url.searchParams.set('fbc', fbCookies.fbc);
-    link.href = url.pathname + '?' + url.searchParams.toString();
   });
 })();
 
