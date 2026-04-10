@@ -2,6 +2,14 @@
 // WING ASSISTANT — FRANCHISE FUNNEL JS
 // ═══════════════════════════════════════════════
 
+// ─── STORE URL PARAMETERS IN COOKIES ───
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  params.forEach(function (value, key) {
+    document.cookie = encodeURIComponent(key) + '=' + encodeURIComponent(value) + ';path=/;max-age=' + (30 * 24 * 60 * 60) + ';SameSite=Lax';
+  });
+})();
+
 // Header scroll effect
 const header = document.getElementById('header');
 if (header) {
