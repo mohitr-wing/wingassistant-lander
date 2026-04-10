@@ -30,10 +30,15 @@
         }
       });
 
-      // Read _fbp and _fbc from cookies at click time (FB pixel sets these async)
+      // Read _fbp from cookie (set by FB pixel)
       var fbp = getCookie('_fbp');
-      var fbc = getCookie('_fbc');
       if (fbp && !url.searchParams.has('fbp')) url.searchParams.set('fbp', fbp);
+
+      // Read _fbc from cookie, or construct it from fbclid if pixel hasn't set it
+      var fbc = getCookie('_fbc');
+      if (!fbc && currentParams.has('fbclid')) {
+        fbc = 'fb.1.' + Date.now() + '.' + currentParams.get('fbclid');
+      }
       if (fbc && !url.searchParams.has('fbc')) url.searchParams.set('fbc', fbc);
 
       window.location.href = url.pathname + '?' + url.searchParams.toString();
