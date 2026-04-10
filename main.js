@@ -10,6 +10,31 @@
   });
 })();
 
+// ─── FORWARD URL PARAMS + FB COOKIES TO QUALIFY.HTML LINKS ───
+(function () {
+  var currentParams = new URLSearchParams(window.location.search);
+
+  // Read _fbp and _fbc from cookies (set by Facebook pixel)
+  var cookies = document.cookie.split('; ');
+  var fbCookies = { fbp: '', fbc: '' };
+  cookies.forEach(function (c) {
+    if (c.startsWith('_fbp=')) fbCookies.fbp = c.split('=')[1];
+    if (c.startsWith('_fbc=')) fbCookies.fbc = c.split('=')[1];
+  });
+
+  document.querySelectorAll('a[href*="qualify.html"]').forEach(function (link) {
+    var url = new URL(link.href, window.location.origin);
+    currentParams.forEach(function (value, key) {
+      if (!url.searchParams.has(key)) {
+        url.searchParams.set(key, value);
+      }
+    });
+    if (fbCookies.fbp && !url.searchParams.has('fbp')) url.searchParams.set('fbp', fbCookies.fbp);
+    if (fbCookies.fbc && !url.searchParams.has('fbc')) url.searchParams.set('fbc', fbCookies.fbc);
+    link.href = url.pathname + '?' + url.searchParams.toString();
+  });
+})();
+
 // Header scroll effect
 const header = document.getElementById('header');
 if (header) {
